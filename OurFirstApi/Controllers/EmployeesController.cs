@@ -14,7 +14,10 @@ namespace OurFirstApi.Controllers
     //api/employees
     public class EmployeesController : ApiController
     {
-        //api/employees
+
+//-----------------------------------------------------------------------------------------------------------------------
+        //select all the employee
+         //api/employees
         public HttpResponseMessage Get()
         {
             using (var connection =
@@ -37,6 +40,8 @@ namespace OurFirstApi.Controllers
             }
         }
 
+//-----------------------------------------------------------------------------------------------------------------------
+        // select employee with specific id
         //api/employees/3000
         public HttpResponseMessage Get(int id)
         {
@@ -65,6 +70,7 @@ namespace OurFirstApi.Controllers
             }
         }
 
+//-----------------------------------------------------------------------------------------------------------------------
         //adding new employee (passing the whole object)
         public HttpResponseMessage Post (EmployeeListResult Employee)
         {
@@ -84,8 +90,7 @@ namespace OurFirstApi.Controllers
             }
         }
 
-
-
+//-----------------------------------------------------------------------------------------------------------------------
         //Updating LastName ( passing Id and lastname)
         public HttpResponseMessage Put( EmployeeListResult Employee)
         {
@@ -105,5 +110,27 @@ namespace OurFirstApi.Controllers
 
             }
         }
+
+//-----------------------------------------------------------------------------------------------------------------------
+        //delete employee with specific id 
+        public HttpResponseMessage Delete (int Id)
+        {
+            using (var Connection= new SqlConnection(ConfigurationManager.ConnectionStrings["Chinook"].ConnectionString))
+            {
+                try
+                {
+                    Connection.Open();
+                    var Result = Connection.Execute("Delete From Employee where EmployeeId = @EmpId", new {EmpId = Id });
+
+                    return Request.CreateResponse(HttpStatusCode.OK,Result);
+
+                }
+                catch(Exception Ex)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, Ex);
+                }
+            }
+        }
+
     }
 }
