@@ -11,13 +11,14 @@ using OurFirstApi.DataAccess;
 
 namespace OurFirstApi.Controllers
 {
+    //in the controller we use the functions from dataAccessso we don't need to open the connection
     [RoutePrefix("api/employee")]
-    //api/employees
+    //api/employee
     public class EmployeesController : ApiController
     {
-        //-----------------------------------------------------------------------------------------------------------------------
-        //select all the employee
-        //api/employees
+//-----------------------------------------------------------------------------------------------------------------------
+        //select all the employee by using the function GetAll() 
+        //api/employee
         [HttpGet, Route("")]
         public HttpResponseMessage Get()
         {
@@ -33,8 +34,9 @@ namespace OurFirstApi.Controllers
                 //return Request.CreateResponse(HttpStatusCode.OK, result);
 
                 var employeeData = new EmployeeDataAccess();
-                var employees = employeeData.GetAll();
-                return Request.CreateResponse(HttpStatusCode.OK, employees);
+                //employeeData is an instance of the EmployeeDataAccess class so it can use it's functions
+                var AllemployeeList = employeeData.GetAll();
+                return Request.CreateResponse(HttpStatusCode.OK, AllemployeeList);
             }
             catch (Exception ex)
             {
@@ -56,20 +58,18 @@ namespace OurFirstApi.Controllers
             // {
             try
             {
-                // connection.Open();
-
+                // connection.Open()
                 // var result =
                 // connection.Query<EmployeeListResult>("Select * From Employee where EmployeeId = @id",
                 //new {id = id}).FirstOrDefault();
                 var repo = new EmployeeDataAccess();
+                //repo is an instance of the EmployeeDataAccess class so it can use it's functions
                 var result = repo.Get(id);
-
 
                 if (result == null)
                 {
                     return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"Employee with the Id {id} was not found");
                 }
-
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             catch (Exception ex)
@@ -80,7 +80,9 @@ namespace OurFirstApi.Controllers
         }
 
         //------------------------------------------------------------------------------------------------------
+        //Select Employee by first name
         [HttpGet, Route("name/{firstName}")]
+
         public HttpResponseMessage Get(string firstName)
         {
             using (var connection =
@@ -129,26 +131,31 @@ namespace OurFirstApi.Controllers
             }
         }
 
-        //-----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
         //Updating LastName ( passing Id and lastname)
-        public HttpResponseMessage Put(EmployeeListResult Employee)
+        [HttpPut,Route("")]
+        public HttpResponseMessage Put( EmployeeListResult Employee)
         {
-            using (var Connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Chinook"].ConnectionString))
-            {
+            // using (var Connection = new SqlConnection(ConfigurationManager.ConnectionStrings["Chinook"].ConnectionString))
+            //{
+            var Updating = new EmployeeDataAccess();
                 try
                 {
-                    Connection.Open();
-                    var result = Connection.Execute("update Employee set LastName = @LastName where EmployeeId = @Id",
-                                                     new { LastName = Employee.LastName, Id = Employee.EmployeeId });
-                    return Request.CreateResponse(HttpStatusCode.OK, result);
-                }
-                catch (Exception Ex)
+                // Connection.Open();
+                // var result = Connection.Execute("update Employee set LastName = @LastName where EmployeeId = @Id",
+                // new { LastName = Employee.LastName, Id = Employee.EmployeeId });
+                //return Request.CreateResponse(HttpStatusCode.OK, result);
+                
+                    Updating.Update(Employee);
+                return Request.CreateResponse(HttpStatusCode.OK);
+
+
+            }
+            catch (Exception Ex)
                 {
                     return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, Ex);
                 }
-
             }
-        }
 
         //-----------------------------------------------------------------------------------------------------------------------
         //delete employee with specific id 
@@ -156,6 +163,7 @@ namespace OurFirstApi.Controllers
         public HttpResponseMessage Delete(int id)
         {
             var DataAccess = new EmployeeDataAccess();
+            //new instance
             try
             {
                 DataAccess.Delete(id);
